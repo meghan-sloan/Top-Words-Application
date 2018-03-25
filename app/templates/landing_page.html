@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<title>W3.CSS Template</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<body class="w3-content" style="max-width:1300px">
+
+<!-- First Grid: Logo & About -->
+<div class="w3-row">
+  <div class="w3-half w3-black w3-container w3-center" style="height:700px">
+    <div class="w3-padding-64">
+      <h1>Upload and Enter Parameters</h1>
+      <ol>
+        <li>Be sure upload is in .csv format<li>
+        <li>Currently, program does not remember stop words, upload entire list every time
+      </ol>
+    </div>
+    <form method=post enctype=multipart/form-data>
+      <p><input type=file name=file>
+         <input type=submit value=Upload>
+
+    <p>Enter additional stop words (lowercase, separated by a comma)</p>
+      <label for="fname">Stop words</label>
+      <input type="text" name="stop_words">
+
+    <p>Enter number of words per organization</p>
+      <label for="fname">Number of words</label>
+      <input type="integer" name="num_words">
+    <p>Enter column names, serparated by commas</p>
+      <label for="fname">Column names</label>
+      <input type="text" name="col_names">
+
+    <p>If you would like to combine columns, enter the columns to combine seperated by commas</p>
+
+      <label for="fname">columns to combine</label>
+      <input type="text" name="comb_cols">
+    </form>
+  </div>
+  <div class="w3-half w3-blue-grey w3-container" style="height:700px">
+    <div class="w3-padding-64 w3-center">
+      <h1>Results</h1>
+      <div class="w3-left-align w3-padding-large">
+        <p>{{ col }}</p>
+        {{ stop }}
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
