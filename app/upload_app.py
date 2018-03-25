@@ -17,20 +17,24 @@ def allowed_file(filename):
 def change_col_name(col_list):
     changed = [name.lower().strip().replace(' ', '_')for name in col_list]
     return changed
-
-def run_vectorizer(filename, col_list):
+'''
+Need to change when csv's are saved so it does it per column
+'''
+def fix_column_titles(filename):
     data = pd.read_csv(filename, nrows=41)
     data = data.fillna(value='')
     columns = data.columns
     cols = [col.lower().replace(' ', '_') for col in columns]
     data.columns = cols
-    for col in col_list:
-        vector, features = preprocess(data, col)
-        top_words_df, weights_df = create_dfs(vector, features, data)
-        # top_words_df.to_csv('UPLOAD_FOLDER/{}_top_words.csv'.format(col))
-        # weights_df.to_csv('UPLOAD_FOLDER/{}_weights.csv'.format(col))
-        diversity_overall = overall_summary(vector, features)
-        # diversity_overall.to_csv('UPLOAD_FOLDER/results/{}_summary.csv'.format(col))
+    return data
+
+def run_vectorizer(data, col):
+    vector, features = preprocess(data, col)
+    top_words_df, weights_df = create_dfs(vector, features, data)
+    # top_words_df.to_csv('UPLOAD_FOLDER/{}_top_words.csv'.format(col))
+    # weights_df.to_csv('UPLOAD_FOLDER/{}_weights.csv'.format(col))
+    diversity_overall = overall_summary(vector, features)
+    # diversity_overall.to_csv('UPLOAD_FOLDER/results/{}_summary.csv'.format(col))
     return top_words_df, weights_df
 
 @app.route('/', methods=['GET', 'POST'])
@@ -56,10 +60,11 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            data = fix_column_titles('uploads/{}'.format(filename))
             for col in changed:
-                top_words_df, weights_df = run_vectorizer('uploads/{}'.format(filename), changed)
-                top_words_df.to_csv('/Users/meghan/top_words_app/Top-Words-Application/app/uploads/results/{}_top_words.csv'.format(col))
-                weights_df.to_csv('/Users/meghan/top_words_app/Top-Words-Application/app/uploads/results/{}_weights.csv'.format(col))
+                top_words_df, weights_df = run_vectorizer(data, col)
+                top_words_df.to_csv('/Users/meghan/top_words_app/Top-Words-Application/app/uploads/results/top_words.csv'.format(col))
+                weights_df.to_csv('/Users/meghan/top_words_app/Top-Words-Application/app/uploads/results/weights.csv'.format(col))
             # return '''
             #     <html><body>
             #     <a href="/getTopWords">Top Words CSV.</a>
@@ -73,7 +78,7 @@ def upload_file():
 def getTopWords():
     # with open("outputs/Adjacency.csv") as fp:
     #     csv = fp.read()
-    with open('/Users/meghan/top_words_app/Top-Words-Application/app/uploads/results/diversity_means_top_words.csv') as fp:
+    with open('/Users/meghan/top_words_app/Top-Words-Application/app/uploads/results/top_words.csv') as fp:
         csv = fp.read()
 
     return Response(
@@ -84,19 +89,14 @@ def getTopWords():
 
 @app.route("/getWeights")
 def getWeights():
-    # with open("outputs/Adjacency.csv") as fp:
-    #     csv = fp.read()
-    csv = '1,2,3\n4,5,6\n'
+    with open('/Users/meghan/top_words_app/Top-Words-Application/app/uploads/results/weights.csv') as fp:
+        csv = fp.read()
+
     return Response(
         csv,
         mimetype="text/csv",
         headers={"Content-disposition":
-                 "attachment; filename=myplot.csv"})
-
-    return render_template('landing_page.html')
-#
-# @app.route('/results')
-# def results():
+                "attachment; filename=weights.csv"})
 
 
 if __name__ == '__main__':
